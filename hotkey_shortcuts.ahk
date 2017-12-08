@@ -5,7 +5,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 
 ^j::
-send, site:stackoverflow.com
+send, {Space}site:stackoverflow.com
 return
 
 
@@ -19,4 +19,20 @@ runwait chrome.exe
 click 500, 119
 send, autohotkey.com/docs
 send, {enter}
+return
+
+
+
+^g:: ; GoogleSearch or Show Link with CTRL+G
+  prevClipboard := ClipboardAll
+  SendInput, ^c 
+  ClipWait, 1
+  if !(ErrorLevel)  { 
+    Clipboard := RegExReplace(RegExReplace(Clipboard, "\r?\n"," "), "(^\s+|\s+$)")
+    If SubStr(ClipBoard,1,7)="http://"
+      Run, % Clipboard
+    else 
+      Run, % "http://www.google.com/search?hl=en&q=" Clipboard " site:stackoverflow.com"
+  } 
+  Clipboard := prevClipboard
 return
