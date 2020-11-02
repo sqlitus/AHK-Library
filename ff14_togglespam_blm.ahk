@@ -5,6 +5,34 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #SingleInstance, Force ; auto overwrites same named script running
 
 
+
+/* GLOBAL VARIABLES 
+
+The Top of the Script (the Auto-execute Section)
+
+After the script has been loaded, it begins executing at the top line, continuing until a Return, Exit, hotkey/hotstring label, or the physical end of the script is encountered (whichever comes first). This top portion of the script is referred to as the auto-execute section.
+
+*/ 
+
+KingMogSayings := ["- may his glorious name live forever!"
+	, "- may his miraculous foresight ever be praised!"
+	, "- may his courageous sacrifice never be forgotten!"
+	, "- may his boundless grace fill our hearts with love!"
+	, "- may he reign forevermore, kupo!"
+	, "- may he justly reign till the end of days!"
+	, "- may his magnificent virtue serve as an example to us all!"]
+
+
+
+
+
+
+
+
+
+
+
+
 /* notes
 
 firestarter working.
@@ -16,7 +44,55 @@ thunder at buff 2&3 working. slot 1 not working ????
 
 */ 
 
+; -- autohotkey helper functions
 
+^l::									; if you press Ctrl+z
+
+
+	; -- for 2560 x 1440 screen.
+	x := 1333
+	y := 157
+	PixelGetColor, buff_1, x, y, RGB	; get the pixel color at screen coordinates 500,500 and save it in a variable "buff_1"
+
+	x1 := 1600 
+	y1 := 918
+	PixelGetColor, buff_2, x1, y1, RGB
+
+	x2 := 1636
+	y2 := 921
+	PixelGetColor, buff_3, x2, y2, RGB
+
+	x3 := 1674
+	y3 := 918
+	PixelGetColor, buff_4, x3, y3, RGB  ; -- Firestarter: 0xFFFECA. 
+	
+	x4 := 1700
+	y4 := 921
+	PixelGetColor, buff_5, x4, y4, RGB
+	
+	x5 := 1711
+	y5 := 921
+	PixelGetColor, buff_6, x5, y5, RGB
+	
+
+	clipboard := buff_1
+	MsgBox The color at position %x%, %y% is %buff_1%. Copied to clipboard. 
+	. `r %x1%, %y1%: %buff_2%.  
+	. `r %x2%, %y2%, %buff_3%.  
+	. `r %x3%, %y3%, %buff_4%.
+	. `r %x4%, %y4%, %buff_5%.
+	. `r %x5%, %y5%, %buff_6%.
+
+return
+
+^p::
+	Pause
+	Suspend
+return
+
+^b::
+	OneToggle:=!OneToggle
+Return
 
 
 
@@ -36,14 +112,50 @@ outside of combat: use transpose if mana is low.
 
 
 
-^p::
-	Pause
-	Suspend
+/*
+===============================================================
+HOTSTRINGS
+::hotstring::  ; -- replaces after \s space
+:*:hotstring::  ; -- asterik makes it INSTANT (no room for extra char modifications)
+*/
+
+
+		
+		
+::btw::by the way
 return
 
-^b::
-	OneToggle:=!OneToggle
-Return
+::kmm::King Moggle Mog XII
+return
+
+:*:]d::  ; This hotstring replaces "]d" with the current date and time via the commands below.
+FormatTime, CurrentDateTime,, M/d/yyyy h:mm tt  ; It will look like 9/1/2005 3:53 PM
+SendInput %CurrentDateTime%
+return
+
+:*:]btw::
+SendInput by the way
+return
+
+:*:]kmm::  ; This hotstring replaces "]d" with the current date and time via the commands below.
+Random, rand_num , 1, 6
+SendInput % "King Moggle Mog XII " . KingMogSayings[rand_num]
+return
+
+
+
+; -- WORKING RANDOM PHRASE FROM [INDEXED] ARRAY.
+^k::
+Random, rand_num , 1, 6
+Msgbox, % "King Moggle Mog XII " . KingMogSayings[rand_num]  ; -- ! concatenates variable and string!
+return
+
+/*
+===============================================================
+MAIN HOTKEYS
+
+*/
+
 
 
 
