@@ -14,86 +14,51 @@ After the script has been loaded, it begins executing at the top line, continuin
 
 */ 
 
-KingMogSayings := ["- may his glorious name live forever!"
-	, "- may his miraculous foresight ever be praised!"
-	, "- may his courageous sacrifice never be forgotten!"
-	, "- may his boundless grace fill our hearts with love!"
-	, "- may he reign forevermore, kupo!"
-	, "- may he justly reign till the end of days!"
-	, "- may his magnificent virtue serve as an example to us all!"]
+KingMogSayings := ["- may his glorious name live forever"
+	, "- may his miraculous foresight ever be praised"
+	, "- may his courageous sacrifice never be forgotten"
+	, "- may his boundless grace fill our hearts with love"
+	, "- may he reign forevermore, kupo"
+	, "- may he justly reign till the end of days"
+	, "- may his magnificent virtue serve as an example to us all"
+	, "- may his reign end with minimal bloodshed"
+	, "- may his scepter of judgment ever command our respect"]
 
 
 
-
-
-
-
-
-
-
+sharepointsays := ["end-user document capture"
+	, "native functionality"]
+	
+	
+fantasy_sayings := ["verily doth I proclaim"
+	, "must needs"
+	, ""]
 
 
 /* notes
 
 firestarter working.
 scythe working easy.
-thunder at buff 2&3 working. slot 1 not working ????
-
+thunder working - had to delete other line...
 
 
 
 */ 
 
-; -- autohotkey helper functions
 
-^l::									; if you press Ctrl+z
+/* ========================================================
+autohotkey helper functions
 
+*/
 
-	; -- for 2560 x 1440 screen.
-	x := 1333
-	y := 157
-	PixelGetColor, buff_1, x, y, RGB	; get the pixel color at screen coordinates 500,500 and save it in a variable "buff_1"
-
-	x1 := 1600 
-	y1 := 918
-	PixelGetColor, buff_2, x1, y1, RGB
-
-	x2 := 1636
-	y2 := 921
-	PixelGetColor, buff_3, x2, y2, RGB
-
-	x3 := 1674
-	y3 := 918
-	PixelGetColor, buff_4, x3, y3, RGB  ; -- Firestarter: 0xFFFECA. 
-	
-	x4 := 1700
-	y4 := 921
-	PixelGetColor, buff_5, x4, y4, RGB
-	
-	x5 := 1711
-	y5 := 921
-	PixelGetColor, buff_6, x5, y5, RGB
-	
-
-	clipboard := buff_1
-	MsgBox The color at position %x%, %y% is %buff_1%. Copied to clipboard. 
-	. `r %x1%, %y1%: %buff_2%.  
-	. `r %x2%, %y2%, %buff_3%.  
-	. `r %x3%, %y3%, %buff_4%.
-	. `r %x4%, %y4%, %buff_5%.
-	. `r %x5%, %y5%, %buff_6%.
-
+; reload this script
+^+u::
+	SoundBeep, 750, 500
+	Reload
+	Sleep 1000 ; If successful, the reload will close this instance during the Sleep, so the line below will never be reached.
+	MsgBox, 4,, The script could not be reloaded. Would you like to open it for editing?
+	IfMsgBox, Yes, Edit
 return
-
-^p::
-	Pause
-	Suspend
-return
-
-^b::
-	OneToggle:=!OneToggle
-Return
-
 
 
 ; --- BLACKMAGE. FFXIV.
@@ -122,22 +87,20 @@ HOTSTRINGS
 
 		
 		
-::btw::by the way
+::btw::by the way  ; -- 'soft hotstring', sent after a space.
 return
 
-::kmm::King Moggle Mog XII
+:*:]btw::  ; -- 'HOT' hotstring, sent instantly.
+SendInput by the way
 return
+
 
 :*:]d::  ; This hotstring replaces "]d" with the current date and time via the commands below.
 FormatTime, CurrentDateTime,, M/d/yyyy h:mm tt  ; It will look like 9/1/2005 3:53 PM
 SendInput %CurrentDateTime%
 return
 
-:*:]btw::
-SendInput by the way
-return
-
-:*:]kmm::  ; This hotstring replaces "]d" with the current date and time via the commands below.
+:*:kmm::  ; This hotstring replaces "]d" with the current date and time via the commands below.
 Random, rand_num , 1, 6
 SendInput % "King Moggle Mog XII " . KingMogSayings[rand_num]
 return
@@ -157,9 +120,17 @@ MAIN HOTKEYS
 */
 
 
-
-
 #IfWinActive FINAL FANTASY XIV 	; to force the hotkey only to FFXIV window
+
+~!WheelDown::
+	OneToggle := !OneToggle
+	SendInput {0 down}
+	Sleep 22				
+	SendInput {0 up}
+return
+
+
+
 OneToggle=0 
 MButton::
 		
@@ -172,7 +143,7 @@ MButton::
 		if (OneToggle := !OneToggle)
 			
 			SetTimer, timer, -1
-			
+			Sleep 22
 			SendInput 3
 			Sleep 50
 			SendInput 5  ; -- this part runs when turned off via ^b:: OneToggle:=!OneToggle
@@ -185,92 +156,177 @@ MButton::
 		timer:
 		
 		last_status_firestarter := 0
+		last_status_thundercloud := 0
+		status_firestarter := 0  
+		status_thundercloud := 0
+		fire_counter := 0
+		
 		
 		While (OneToggle)
 		{  
 
 			; -- buff pixel locations for resolution: 2560x1440
-			; -- PixelGetColor, mana_6pct, 1305, 1090, RGB  ; -- empty: 0x33231A
-			PixelGetColor, mana_800_over, 1314, 1090, RGB ; -- empty: 0x33231A
-			PixelGetColor, mana_1100, 1312, 1091, RGB ; -- empty: 0x2B1B13
-			PixelGetColor, mana_1400, 1321, 1090, RGB ; -- empty: 0x33231A
-			
 			PixelGetColor, enemy_health_1pct, 1004, 157, RGB  ; -- full enemy health color 0xFFBDBF. ; -- empty health bar color 0x471515
-					; -- also purple color: full: 0xFFDCFF. low: 0x402141.
+					; -- also purple color: full: 0xFFDCFF. low: 0x402141
+
 			
-			status_firestarter := 0
-			status_thundercloud := 0
+			; -- SCATHE: 1%. tagged enemy (red bar) or untagged enemy (purple bar), with low health
+			; -- NORMAL ROTATION if enemy targeted, and has >1% health
 			
-			
-			; -- tagged enemy (red bar) or untagged enemy (purple bar), with low health
-			if (enemy_health_1pct = 0x471515 or enemy_health_1pct = 0x402141)
+			if (enemy_health_1pct = 0x471515 or enemy_health_1pct = 0x402141)  ; low health shade?
 			{
-				SendInput {7 down}
-				Sleep 16
-				SendInput {7 up}
+				SendInput 7
+				Sleep 14
+				; fire_counter += 16
 				; -- SendInputInput ^{5} ; -- also tech works?, but might need sleep w/ control 
 			}
-			else if (enemy_health_1pct = 0xFFBDBF or enemy_health_1pct = 0xFFDCFF)
+			
+			; -- else if (enemy_health_1pct = 0xFFBDBF or enemy_health_1pct = 0xFFDCFF)  ; high health shade?  0xFFBDBF
+			if (1=1)
 			{
 				
 				PixelGetColor, buff_1, 1561, 919, RGB ; -- thundercloud: 0xEEDADD
-				PixelGetColor, buff_1_2, 1561, 921, RGB ; -- !!!  for thundercloud since buff_1 wasn't working.: 0xB2898A.
-				PixelGetColor, buff_2, 1600, 918, RGB ; -- thundercloud: 0xECD0D2.
-				PixelGetColor, buff_3, 1636, 921, RGB; -- thundercloud: 0xB2898A.
-				PixelGetColor, buff_4, 1674, 918, RGB ; -- firestarter: FFFECA. thundercloud: 0xC799BD.
-				PixelGetColor, buff_5, 1711, 921, RGB ; -- !!! theorized position for buff_5 based on 1_2 and _3. Same thundercloud color for each 0xB2898A.
-				PixelGetColor, buff_6, 1674, 918, RGB
+				PixelGetColor, buff_1_2, 1561, 921, RGB ; -- !!!  for thundercloud since buff_1 wasn't working.: 0xB2898A
+				PixelGetColor, buff_2, 1600, 918, RGB ; -- thundercloud: 0xECD0D2
+				PixelGetColor, buff_3, 1636, 921, RGB; -- thundercloud: 0xB2898A
+				PixelGetColor, buff_4, 1674, 918, RGB ; -- firestarter: FFFECA. thundercloud: 0xC799BD
+				PixelGetColor, buff_5, 1711, 921, RGB ; -- !!! theorized position for buff_5 based on 1_2 and _3. Same thundercloud color for each 0xB2898A
 				
+				; FIRESTARTER check buff locations 1-4
 				if  (buff_1 = 0xF6F67E or buff_2 = 0xFFFCD7 or buff_3 = 0xEEB345 or buff_4 = 0xFFFECA)
 				{
 					; -- set status of firestarter=true
-					status_firestarter := 1
+					; status_firestarter := 1
 					
-					; -- attempt to Cast firestarter
+					; -- attempt to Cast firestarter. Instant is best, vs holding down key
 					SendInput {3 down}
-					Sleep 14
+					Sleep 15
 					SendInput {3 up}
 					
 				}
-				else if (buff_1 = 0x0xEEDADD or buff_2 = 0xECD0D2 or buff_3 = 0xB2898A or buff_4 = 0xC799BD or buff_5 = 0xB2898A or buff_1_2 = 0xB2898A)
+				
+				; thundercloud check buff 1-5
+				if (buff_1 = 0x0xEEDADD or buff_2 = 0xECD0D2 or buff_3 = 0xB2898A or buff_4 = 0xC799BD or buff_5 = 0xB2898A or buff_1_2 = 0xB2898A)
 				{
 					status_thundercloud := 1
 					
-					SendInput {4 down}				
-					Sleep 15
-					SendInput {4 up}
-				}	
-				else if (mana_1400 = 0x33231A)
-				{
-					SendInput {r down}
+					SendInput {4 down}
 					Sleep 16
-					SendInput {r up}
+					SendInput {4 up}
+					; fire_counter += 15
 					
-					SendInput {5 down}
-					Sleep 13				
-					SendInput {5 up}
 				}
+				
+
+				
 			}
 			
-
 			
-			; -- out of combat. switch to gain mana. AND NOT IN FIRE.
-			if (mana_800_over = 0x33231A)
+			
+
+			PixelGetColor, mana_10pct, 1305, 1092, RGB ; empty: 0x2D1D14
+			
+			; -- BLIZZARD III / TRANSPOSE: if low mana. (happens w or w/o enemy targeted.)
+			if (mana_10pct = 0x2D1D14)
 			{
-				SendInput {r down}
-				Sleep 22
-				SendInput {r up}
-				Sleep 79
+				PixelGetColor, transpose_up, 872, 1148, RGB  ; upper left quad of button. non pressed. 0x81822D
+				if (transpose_up = 0x81822D)
+				{
+					Sleep 21
+					SendInput {r down}
+					Sleep 22
+					SendInput {r up}
+					Sleep 24
+				}
+				
+				Sleep 10
+				SendInput 5
+				
+				; fire_counter += 57
 			}
-
+		
+			Sleep 34
 			
+		}
+		
+Return
+
+
+
+
+
+; -- ======================================================
+; -- REFERENCE
+; -- ======================================================
+
+			; mana bar empty values. CERTIFIED. mana bar 1300-1500.
 			/*
-			; -- low mana check: around 700
-			1305, 1090 0x33231A
+			PixelGetColor, mana_5pct, 1300, 1092, RGB  ; empty: 0x2C1C14 1 with this. close to 95pct val
+			PixelGetColor, mana_10pct, 1305, 1092, RGB ; empty: 0x2D1D14 3 HAVE THIS
+			PixelGetColor, mana_25pct, 1350, 1092, RGB ; empty: 0x2D1D14
+			PixelGetColor, mana_50pct, 1400, 1092, RGB ; empty: 0x3E2C1F ??
+			PixelGetColor, mana_75pct, 1450, 1092, RGB ; empty: 0x2D1D14
+			PixelGetColor, mana_95pct, 1505, 1092, RGB ; empty: 0x2C1D14 1 WITH THIS. CLOSE TO 5pct val
 			*/
 			
 			
-			
+			; other mana values w/ 1300-1500 castbar.
+			/*
+			PixelGetColor, mana_800_ish, 1307, 1090, RGB ; -- empty: 0x2B1B13 ; -- NOT WORKING
+			PixelGetColor, mana_1000_ish, 1310, 1090, RGB ; -- empty: 0x2D1D14 ; - GUESSING
+			*/
+
+
+			; castbar progress
+			/*
+			PixelGetColor, castbar_20pct, 1217, 1028, RGB ; full: 0x860C48
+			PixelGetColor, castbar_75pct, 1364, 1028, RGB ; full: 0xD64F8B
+			PixelGetColor, castbar_90pct, 1400, 1028, RGB ; EMPTY?: 0x2B1B13. 
+			*/
+
+
+				/*
+				else 
+				{
+					status_thundercloud := 0
+				}
+				*/
+				
+				; if in combat targeting someone, and high mana, cast fire I
+				/*
+				if (mana_9500 = 0xE05793)
+				{
+					SendInput 2
+					Sleep 39
+				}
+				*/
+
+				; -- if either firestarter or thundercloud just finished, and the other isn't active..continue with Fire I rotation.
+				/*
+				if (last_status_firestarter = 1 and status_firestarter = 0 and status_thundercloud = 0 or last_status_thundercloud = 1 and status_thundercloud = 0 and status_firestarter = 0)
+				{	
+					; start counting to 2300 ms to queue fire.
+					
+					SoundBeep, 750, 500
+					fire_counter := 0
+					
+					
+				}
+				*/
+				
+				; -- cast fire I if it's been long enough
+				/*
+				if (fire_counter > 755)
+				{	
+					Send 23
+					Sleep 68
+					Send 23
+					fire_counter := 0
+				}
+				*/
+				
+				
+				
 			/*
 			; -- health check for buffs
 			PixelGetColor, health_40, 1149, 1092, RGB
@@ -302,22 +358,6 @@ MButton::
 				Send 2
 			*/
 			; -- OTHERWISE NOTHING
-		
-		
-			Sleep 45
-		}
-		
-Return
-
-
-
-
-
-; -- ======================================================
-; -- REFERENCE
-; -- ======================================================
-
-
 
 ;-- reference: 4k pixel locations
 
